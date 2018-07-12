@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"gopkg.in/dgrijalva/jwt-go.v3"
+	jwt "gopkg.in/dgrijalva/jwt-go.v3"
 )
 
 // MapClaims type that uses the map[string]interface{} for JSON decoding
@@ -528,14 +528,25 @@ func (mw *GinJWTMiddleware) parseToken(c *gin.Context) (*jwt.Token, error) {
 	var token string
 	var err error
 
-	parts := strings.Split(mw.TokenLookup, ":")
-	switch parts[0] {
-	case "header":
-		token, err = mw.jwtFromHeader(c, parts[1])
-	case "query":
-		token, err = mw.jwtFromQuery(c, parts[1])
-	case "cookie":
-		token, err = mw.jwtFromCookie(c, parts[1])
+	methods := strings.Split(mw.TokenLookup, ",")
+	for _, method := range methods {
+		parts := strings.Split(strings.TrimSpace(method), ":")
+		k := strings.TrimSpace(parts[0])
+		v := strings.TrimSpace(parts[1])
+		switch k {
+		case "header":
+			if len(token) == 0 {
+				token, err = mw.jwtFromHeader(c, v)
+			}
+		case "query":
+			if len(token) == 0 {
+				token, err = mw.jwtFromQuery(c, v)
+			}
+		case "cookie":
+			if len(token) == 0 {
+				token, err = mw.jwtFromCookie(c, v)
+			}
+		}
 	}
 
 	if err != nil {

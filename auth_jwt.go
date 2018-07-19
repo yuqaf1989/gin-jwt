@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	jwt "gopkg.in/dgrijalva/jwt-go.v3"
+	"gopkg.in/dgrijalva/jwt-go.v3"
 )
 
 // MapClaims type that uses the map[string]interface{} for JSON decoding

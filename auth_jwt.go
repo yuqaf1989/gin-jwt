@@ -432,7 +432,7 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 
 	expire := mw.TimeFunc().Add(mw.Timeout)
 	claims["exp"] = expire.Unix()
-	claims["orig_iat"] = mw.TimeFunc().Unix()
+	claims["iat"] = mw.TimeFunc().Unix()
 	tokenString, err := mw.signedString(token)
 
 	if err != nil {
@@ -498,7 +498,7 @@ func (mw *GinJWTMiddleware) RefreshToken(c *gin.Context) (string, time.Time, err
 
 	expire := mw.TimeFunc().Add(mw.Timeout)
 	newClaims["exp"] = expire.Unix()
-	newClaims["orig_iat"] = mw.TimeFunc().Unix()
+	newClaims["iat"] = mw.TimeFunc().Unix()
 	tokenString, err := mw.signedString(newToken)
 
 	if err != nil {
@@ -540,7 +540,7 @@ func (mw *GinJWTMiddleware) CheckIfTokenExpire(c *gin.Context) (jwt.MapClaims, e
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	origIat := int64(claims["orig_iat"].(float64))
+	origIat := int64(claims["iat"].(float64))
 
 	if origIat < mw.TimeFunc().Add(-mw.MaxRefresh).Unix() {
 		return nil, ErrExpiredToken
@@ -562,7 +562,7 @@ func (mw *GinJWTMiddleware) TokenGenerator(data interface{}) (string, time.Time,
 
 	expire := mw.TimeFunc().UTC().Add(mw.Timeout)
 	claims["exp"] = expire.Unix()
-	claims["orig_iat"] = mw.TimeFunc().Unix()
+	claims["iat"] = mw.TimeFunc().Unix()
 	tokenString, err := mw.signedString(token)
 	if err != nil {
 		return "", time.Time{}, err
